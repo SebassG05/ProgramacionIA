@@ -3,7 +3,7 @@ from keras import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
 modelo = Sequential([
 
@@ -27,9 +27,9 @@ print("\n✓ Arquitectura definida correctamente con la API Secuencial de Keras.
 
 # ── 2. Función de pérdida, optimizador y métricas ─────────────────────────────
 modelo.compile(
-    optimizer="adam",                          # Optimizador Adam (lr=0.001 por defecto)
-    loss="sparse_categorical_crossentropy",    # Pérdida para etiquetas enteras
-    metrics=["accuracy"]                       # Métrica de evaluación: accuracy
+    optimizer="adam",                          
+    loss="sparse_categorical_crossentropy",    
+    metrics=["accuracy"]                       
 )
 print("\n✓ Modelo compilado con:")
 print("   · Optimizador : Adam")
@@ -56,6 +56,31 @@ historial = modelo.fit(
 loss_test, acc_test = modelo.evaluate(X_test, y_test, verbose=0)
 print(f"\nResultados en test → Pérdida: {loss_test:.4f} | Accuracy: {acc_test*100:.2f}%")
 
+# ── Curvas de aprendizaje ─────────────────────────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+axes[0].plot(historial.history["accuracy"],     label="Entrenamiento")
+axes[0].plot(historial.history["val_accuracy"], label="Validación")
+axes[0].set_title("Accuracy por época")
+axes[0].set_xlabel("Época")
+axes[0].set_ylabel("Accuracy")
+axes[0].legend()
+axes[0].grid(True)
+
+axes[1].plot(historial.history["loss"],     label="Entrenamiento")
+axes[1].plot(historial.history["val_loss"], label="Validación")
+axes[1].set_title("Pérdida por época")
+axes[1].set_xlabel("Época")
+axes[1].set_ylabel("Loss")
+axes[1].legend()
+axes[1].grid(True)
+
+plt.suptitle("Curvas de Aprendizaje – CNN MNIST", fontsize=14)
+plt.tight_layout()
+plt.savefig("learning_curves.png", dpi=150)
+plt.show()
+print("✓ Curvas de aprendizaje guardadas en learning_curves.png")
+
 y_pred = np.argmax(modelo.predict(X_test), axis=1)
 cm = confusion_matrix(y_test, y_pred)
 
@@ -68,3 +93,5 @@ plt.tight_layout()
 plt.savefig("confusion_matrix.png", dpi=150)
 plt.show()
 print("\n✓ Matriz de confusión guardada en confusion_matrix.png")
+print("\nInforme de clasificación por dígito:")
+print(classification_report(y_test, y_pred, target_names=[str(i) for i in range(10)]))
