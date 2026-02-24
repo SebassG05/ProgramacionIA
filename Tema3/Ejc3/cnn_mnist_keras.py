@@ -1,8 +1,11 @@
 import tensorflow as tf
 from keras import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.callbacks import TensorBoard
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import datetime
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
 modelo = Sequential([
@@ -44,13 +47,25 @@ X_test  = X_test.astype("float32")  / 255.0
 X_train = X_train[..., np.newaxis]
 X_test  = X_test[..., np.newaxis]
 
+# ── TensorBoard callback ─────────────────────────────────────────────────────
+log_dir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+tensorboard_cb = TensorBoard(
+    log_dir=log_dir,
+    histogram_freq=1,       # histogramas de pesos cada época
+    write_graph=True,
+    write_images=False,
+)
+print(f"\n✓ TensorBoard logs → {log_dir}")
+print(f"  Lanza TensorBoard con: tensorboard --logdir logs")
+
 print("\nEntrenando el modelo…")
 historial = modelo.fit(
     X_train, y_train,
     epochs=5,
     batch_size=64,
     validation_split=0.1,
-    verbose=1
+    verbose=1,
+    callbacks=[tensorboard_cb]
 )
 
 loss_test, acc_test = modelo.evaluate(X_test, y_test, verbose=0)
