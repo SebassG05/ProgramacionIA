@@ -1,11 +1,6 @@
-"""
-Verificación de restricciones para los documentos JSON de clientes
-"""
-
 import json
 import os
 from pathlib import Path
-
 
 def load_json_files():
     """Carga todos los archivos JSON de clientes"""
@@ -22,7 +17,6 @@ def load_json_files():
             print(f"✓ Cargado: {filename}")
     
     return clientes
-
 
 def verificar_restricciones(clientes):
     """Verifica que se cumplen todas las restricciones"""
@@ -103,7 +97,6 @@ def verificar_restricciones(clientes):
     
     return todas_cumplidas
 
-
 def mostrar_estadisticas(clientes):
     """Muestra estadísticas generales de los clientes"""
     print("\n" + "="*70)
@@ -148,7 +141,6 @@ def mostrar_estadisticas(clientes):
         for compra in c['compras']:
             print(f"    - {compra['producto']}: {compra['precio']}€ ({compra['fecha']})")
 
-
 def main():
     print("="*70)
     print("ANÁLISIS DE DOCUMENTOS JSON DE CLIENTES")
@@ -167,7 +159,6 @@ def main():
     print("\n" + "="*70)
     print("ANÁLISIS COMPLETADO")
     print("="*70)
-
 
 if __name__ == "__main__":
     main()
