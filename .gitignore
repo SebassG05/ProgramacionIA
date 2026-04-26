@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Datasets grandes (excluir del repo)
+*.csv
+!**/data/README.md
+*.h5
+*.hdf5
+*.parquet
+
+# Logs de TensorFlow
+logs/
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
