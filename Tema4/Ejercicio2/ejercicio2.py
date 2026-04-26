@@ -3,7 +3,7 @@ import numpy as np
 import time
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from sklearn.model_selection import cross_val_score, cross_validate
+from sklearn.model_selection import cross_val_score, cross_validate, GridSearchCV
 
 # APARTADO 1: MODELADO Y EVALUACIÓN
 
@@ -454,4 +454,269 @@ print(f"   ✓ Adecuado para producción con este volumen de datos")
 
 print("\n" + "="*50)
 print("ANÁLISIS COMPLETO FINALIZADO")
+print("="*50)
+
+# APARTADO 7: AJUSTE DE HIPERPARÁMETROS
+
+print("\n" + "="*50)
+print("APARTADO 3: AJUSTE DE HIPERPARÁMETROS")
+print("="*50)
+
+print("\n" + "-"*50)
+print("1. CONFIGURACIÓN DE LA BÚSQUEDA DE HIPERPARÁMETROS")
+print("-"*50)
+
+print("\nEl ajuste de hiperparámetros optimiza el rendimiento del modelo")
+print("probando diferentes combinaciones de valores.")
+
+print("\nHiperparámetros de Ridge Regression a ajustar:")
+print("  - alpha: Parámetro de regularización L2")
+print("  - solver: Algoritmo de optimización")
+print("  - max_iter: Número máximo de iteraciones")
+
+# Rendimiento del modelo original (alpha=1.0)
+print("\n" + "-"*50)
+print("RENDIMIENTO DEL MODELO ORIGINAL")
+print("-"*50)
+
+original_metrics = {
+    'R² (Train)': r2,
+    'MSE (Train)': mse,
+    'RMSE (Train)': rmse,
+    'MAE (Train)': mae,
+    'R² (CV)': cv_r2_scores.mean(),
+    'MSE (CV)': cv_mse_scores.mean(),
+    'RMSE (CV)': cv_rmse_scores.mean(),
+    'MAE (CV)': cv_mae_scores.mean(),
+    'Tiempo': training_time
+}
+
+print(f"\nModelo original (alpha=1.0):")
+print(f"  - R² (Validación Cruzada): {original_metrics['R² (CV)']:.4f}")
+print(f"  - RMSE (Validación Cruzada): {original_metrics['RMSE (CV)']:.4f}")
+print(f"  - MAE (Validación Cruzada): {original_metrics['MAE (CV)']:.4f}")
+print(f"  - Tiempo de entrenamiento: {original_metrics['Tiempo']:.4f} seg")
+
+# Definir grid de hiperparámetros
+print("\n" + "-"*50)
+print("2. DEFINIENDO GRID DE HIPERPARÁMETROS")
+print("-"*50)
+
+param_grid = {
+    'alpha': [0.001, 0.01, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0],
+    'solver': ['auto', 'svd', 'cholesky', 'lsqr'],
+    'max_iter': [1000, 2000, 5000]
+}
+
+print(f"\nGrid de búsqueda definido:")
+print(f"  - alpha: {param_grid['alpha']}")
+print(f"  - solver: {param_grid['solver']}")
+print(f"  - max_iter: {param_grid['max_iter']}")
+
+total_combinations = len(param_grid['alpha']) * len(param_grid['solver']) * len(param_grid['max_iter'])
+print(f"\n  Total de combinaciones: {total_combinations}")
+print(f"  Con {n_folds}-fold CV: {total_combinations * n_folds} entrenamientos")
+
+# Crear el modelo base
+ridge_base = Ridge(random_state=42)
+
+# GridSearchCV
+print("\n" + "-"*50)
+print("3. EJECUTANDO BÚSQUEDA DE HIPERPARÁMETROS")
+print("-"*50)
+
+print("\nIniciando GridSearchCV...")
+print("(Esto puede tomar varios minutos...)")
+
+start_time_grid = time.time()
+
+grid_search = GridSearchCV(
+    estimator=ridge_base,
+    param_grid=param_grid,
+    cv=n_folds,
+    scoring='r2',
+    n_jobs=-1,
+    verbose=1,
+    return_train_score=True
+)
+
+grid_search.fit(X_train, y_train)
+
+grid_time = time.time() - start_time_grid
+
+print(f"\n✓ Búsqueda completada en {grid_time:.2f} segundos")
+
+print("\n" + "-"*50)
+print("4. MEJORES HIPERPARÁMETROS ENCONTRADOS")
+print("-"*50)
+
+print(f"\nMejores hiperparámetros:")
+for param, value in grid_search.best_params_.items():
+    print(f"  - {param}: {value}")
+
+print(f"\nMejor score (R² en CV): {grid_search.best_score_:.4f}")
+
+best_model = grid_search.best_estimator_
+
+print("\n" + "-"*50)
+print("5. EVALUACIÓN DEL MODELO OPTIMIZADO")
+print("-"*50)
+
+print("\nEvaluando modelo con hiperparámetros optimizados...")
+
+y_train_pred_opt = best_model.predict(X_train)
+
+mse_opt = mean_squared_error(y_train, y_train_pred_opt)
+rmse_opt = np.sqrt(mse_opt)
+mae_opt = mean_absolute_error(y_train, y_train_pred_opt)
+r2_opt = r2_score(y_train, y_train_pred_opt)
+
+print(f"\nMétricas en conjunto de entrenamiento:")
+print(f"  - R²: {r2_opt:.4f}")
+print(f"  - MSE: {mse_opt:.4f}")
+print(f"  - RMSE: {rmse_opt:.4f}")
+print(f"  - MAE: {mae_opt:.4f}")
+
+print("\nRealizando validación cruzada con modelo optimizado...")
+
+cv_results_opt = cross_validate(
+    best_model, 
+    X_train, 
+    y_train, 
+    cv=n_folds, 
+    scoring=scoring_metrics,
+    n_jobs=-1
+)
+
+cv_r2_opt = cv_results_opt['test_r2']
+cv_mse_opt = -cv_results_opt['test_neg_mse']
+cv_rmse_opt = -cv_results_opt['test_neg_rmse']
+cv_mae_opt = -cv_results_opt['test_neg_mae']
+
+print(f"\nMétricas de validación cruzada:")
+print(f"  - R²: {cv_r2_opt.mean():.4f} ± {cv_r2_opt.std():.4f}")
+print(f"  - MSE: {cv_mse_opt.mean():.4f} ± {cv_mse_opt.std():.4f}")
+print(f"  - RMSE: {cv_rmse_opt.mean():.4f} ± {cv_rmse_opt.std():.4f}")
+print(f"  - MAE: {cv_mae_opt.mean():.4f} ± {cv_mae_opt.std():.4f}")
+
+# Comparación antes y después
+print("\n" + "-"*50)
+print("6. COMPARACIÓN: MODELO ORIGINAL VS OPTIMIZADO")
+print("-"*50)
+
+comparison_df = pd.DataFrame({
+    'Métrica': ['R² (Train)', 'MSE (Train)', 'RMSE (Train)', 'MAE (Train)', 
+                'R² (CV)', 'MSE (CV)', 'RMSE (CV)', 'MAE (CV)'],
+    'Original (α=1.0)': [
+        r2, mse, rmse, mae,
+        cv_r2_scores.mean(), cv_mse_scores.mean(), 
+        cv_rmse_scores.mean(), cv_mae_scores.mean()
+    ],
+    'Optimizado': [
+        r2_opt, mse_opt, rmse_opt, mae_opt,
+        cv_r2_opt.mean(), cv_mse_opt.mean(), 
+        cv_rmse_opt.mean(), cv_mae_opt.mean()
+    ]
+})
+
+comparison_df['Mejora (%)'] = (
+    (comparison_df['Optimizado'] - comparison_df['Original (α=1.0)']) / 
+    comparison_df['Original (α=1.0)'].abs() * 100
+)
+
+comparison_df.loc[comparison_df['Métrica'].str.contains('MSE|RMSE|MAE'), 'Mejora (%)'] *= -1
+
+print("\n" + comparison_df.to_string(index=False))
+
+print("\n" + "-"*50)
+print("7. ANÁLISIS DE MEJORAS")
+print("-"*50)
+
+r2_improvement = ((cv_r2_opt.mean() - cv_r2_scores.mean()) / cv_r2_scores.mean()) * 100
+rmse_improvement = ((cv_rmse_scores.mean() - cv_rmse_opt.mean()) / cv_rmse_scores.mean()) * 100
+mae_improvement = ((cv_mae_scores.mean() - cv_mae_opt.mean()) / cv_mae_scores.mean()) * 100
+
+print(f"\nMejoras con hiperparámetros optimizados:")
+print(f"  1. R² (CV): {r2_improvement:+.2f}%")
+if r2_improvement > 0:
+    print(f"     ✓ Mejora en capacidad predictiva")
+else:
+    print(f"     → Sin mejora significativa")
+
+print(f"\n  2. RMSE (CV): {rmse_improvement:+.2f}%")
+if rmse_improvement > 0:
+    print(f"     ✓ Reducción del error")
+else:
+    print(f"     → Error similar al original")
+
+print(f"\n  3. MAE (CV): {mae_improvement:+.2f}%")
+if mae_improvement > 0:
+    print(f"     ✓ Reducción del error absoluto")
+else:
+    print(f"     → Error similar al original")
+
+print("\n" + "-"*50)
+print("8. TOP 5 MEJORES CONFIGURACIONES")
+print("-"*50)
+
+cv_results_df = pd.DataFrame(grid_search.cv_results_)
+top_5_configs = cv_results_df.nsmallest(5, 'rank_test_score')[
+    ['param_alpha', 'param_solver', 'param_max_iter', 'mean_test_score', 'std_test_score']
+]
+
+print("\nTop 5 configuraciones por R² en validación cruzada:")
+print()
+for idx, (_, row) in enumerate(top_5_configs.iterrows(), 1):
+    print(f"{idx}. alpha={row['param_alpha']}, solver={row['param_solver']}, "
+          f"max_iter={row['param_max_iter']}")
+    print(f"   R² = {row['mean_test_score']:.4f} ± {row['std_test_score']:.4f}")
+    print()
+
+print("\n" + "-"*50)
+print("9. ANÁLISIS DE SENSIBILIDAD - ALPHA")
+print("-"*50)
+
+print("\nImpacto del parámetro alpha en el rendimiento:")
+alpha_analysis = cv_results_df.groupby('param_alpha')['mean_test_score'].agg(['mean', 'std', 'max'])
+alpha_analysis = alpha_analysis.sort_values('mean', ascending=False)
+
+print("\nAlpha\t\tR² Promedio\tDesv. Std\tMejor R²")
+print("-" * 60)
+for alpha, row in alpha_analysis.iterrows():
+    print(f"{alpha}\t\t{row['mean']:.4f}\t\t{row['std']:.4f}\t\t{row['max']:.4f}")
+
+print("\n" + "-"*50)
+print("10. CONCLUSIONES DEL AJUSTE DE HIPERPARÁMETROS")
+print("-"*50)
+
+print(f"\n1. Mejor configuración encontrada:")
+print(f"   - alpha = {grid_search.best_params_['alpha']}")
+print(f"   - solver = {grid_search.best_params_['solver']}")
+print(f"   - max_iter = {grid_search.best_params_['max_iter']}")
+
+print(f"\n2. Mejora en rendimiento:")
+if abs(r2_improvement) < 0.5:
+    print(f"   → Mejora marginal ({r2_improvement:+.2f}%)")
+    print(f"   → Hiperparámetros originales ya eran adecuados")
+elif r2_improvement > 0:
+    print(f"   ✓ Mejora significativa de {r2_improvement:.2f}%")
+    print(f"   ✓ Recomendado usar modelo optimizado")
+else:
+    print(f"   → Modelo original es comparable o superior")
+
+print(f"\n3. Costo computacional:")
+print(f"   - Tiempo de búsqueda: {grid_time:.2f} segundos")
+print(f"   - Combinaciones evaluadas: {total_combinations}")
+print(f"   - Tiempo promedio por configuración: {grid_time/total_combinations:.4f} seg")
+
+print(f"\n4. Recomendación final:")
+if abs(r2_improvement) >= 1.0:
+    print(f"   ✓ Usar modelo optimizado en producción")
+    print(f"   ✓ Mejora justifica el costo de búsqueda")
+else:
+    print(f"   → Modelo original es suficientemente bueno")
+    print(f"   → Beneficio marginal del ajuste")
+
+print("\n" + "="*50)
+print("AJUSTE DE HIPERPARÁMETROS COMPLETADO")
 print("="*50)
