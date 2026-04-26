@@ -1,0 +1,20 @@
+{
+  "cliente": "Laura Jiménez Torres",
+  "nombre": "Laura",
+  "edad": 32,
+  "ciudad": "Sevilla",
+  "compras": [
+    {
+      "id": "C013",
+      "producto": "Smartwatch",
+      "precio": 79.99,
+      "fecha": "2026-04-01"
+    },
+    {
+      "id": "C014",
+      "producto": "Correa adicional",
+      "precio": 15.00,
+      "fecha": "2026-04-05"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "cliente": "María Fernández Sanz",
+  "nombre": "María",
+  "edad": 35,
+  "ciudad": "Madrid",
+  "compras": [
+    {
+      "id": "C007",
+      "producto": "Monitor 27 pulgadas",
+      "precio": 299.99,
+      "fecha": "2026-01-15"
+    },
+    {
+      "id": "C008",
+      "producto": "Webcam HD",
+      "precio": 65.00,
+      "fecha": "2026-02-20"
+    },
+    {
+      "id": "C009",
+      "producto": "Auriculares Bluetooth",
+      "precio": 89.90,
+      "fecha": "2026-03-12"
+    }
+  ]
+}

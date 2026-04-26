@@ -1,0 +1,26 @@
+{
+  "cliente": "Carlos Martínez Ruiz",
+  "nombre": "Carlos",
+  "edad": 28,
+  "ciudad": "Barcelona",
+  "compras": [
+    {
+      "id": "C004",
+      "producto": "Portátil",
+      "precio": 899.99,
+      "fecha": "2026-02-10"
+    },
+    {
+      "id": "C005",
+      "producto": "Mochila para portátil",
+      "precio": 35.00,
+      "fecha": "2026-02-10"
+    },
+    {
+      "id": "C006",
+      "producto": "Mouse pad",
+      "precio": 12.50,
+      "fecha": "2026-03-05"
+    }
+  ]
+}

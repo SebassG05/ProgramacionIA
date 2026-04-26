@@ -1,0 +1,26 @@
+{
+  "cliente": "Ana García López",
+  "nombre": "Ana",
+  "edad": 25,
+  "ciudad": "Madrid",
+  "compras": [
+    {
+      "id": "C001",
+      "producto": "Ratón inalámbrico",
+      "precio": 25.99,
+      "fecha": "2026-03-15"
+    },
+    {
+      "id": "C002",
+      "producto": "Teclado mecánico",
+      "precio": 45.50,
+      "fecha": "2026-03-20"
+    },
+    {
+      "id": "C003",
+      "producto": "Alfombrilla gaming",
+      "precio": 18.90,
+      "fecha": "2026-04-10"
+    }
+  ]
+}
