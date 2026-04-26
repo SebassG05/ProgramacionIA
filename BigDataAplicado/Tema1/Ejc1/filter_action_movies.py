@@ -23,16 +23,13 @@ def filter_action_movies(df, min_rating=4.0):
     print(f"   Total de filas: {len(df):,}")
     print(f"   Columnas: {', '.join(df.columns.tolist())}")
     
-    # Medir tiempo de filtrado
     start_time = time.time()
     
-    # Filtrar por género Action (puede estar combinado con otros géneros)
     print(f"\n🎬 Filtrando por género 'Action'...")
     action_mask = df['genres'].str.contains('Action', case=False, na=False)
     action_df = df[action_mask]
     print(f"   ✓ Películas con género Action: {len(action_df):,}")
     
-    # Filtrar por rating >= 4
     print(f"\n⭐ Filtrando por rating >= {min_rating}...")
     rating_mask = action_df['rating'] >= min_rating
     filtered_df = action_df[rating_mask]
@@ -40,7 +37,6 @@ def filter_action_movies(df, min_rating=4.0):
     
     elapsed_time = time.time() - start_time
     
-    # Estadísticas del resultado
     print(f"\n📈 ESTADÍSTICAS DEL FILTRADO:")
     print(f"   Tiempo de ejecución: {elapsed_time:.4f} segundos")
     print(f"   Filas originales: {len(df):,}")
@@ -52,14 +48,12 @@ def filter_action_movies(df, min_rating=4.0):
     print(f"   Rating máximo: {filtered_df['rating'].max():.1f}")
     print(f"   Usuarios únicos: {filtered_df['userId'].nunique():,}")
     print(f"   Películas únicas: {filtered_df['movieId'].nunique():,}")
-    
-    # Top géneros combinados con Action
+
     print(f"\n🎭 Top 10 combinaciones de géneros más frecuentes:")
     top_genres = filtered_df['genres'].value_counts().head(10)
     for idx, (genre, count) in enumerate(top_genres.items(), 1):
         print(f"   {idx:2d}. {genre}: {count:,} ratings")
     
-    # Top 5 películas por número de ratings
     print(f"\n🏆 Top 5 películas de Action más valoradas (por cantidad):")
     top_movies = filtered_df.groupby(['movieId', 'title']).size().sort_values(ascending=False).head(5)
     for idx, ((movie_id, title), count) in enumerate(top_movies.items(), 1):
@@ -67,7 +61,6 @@ def filter_action_movies(df, min_rating=4.0):
         print(f"   {idx}. {title}")
         print(f"      Ratings: {count:,} | Rating promedio: {avg_rating:.2f}")
     
-    # Vista previa
     print(f"\n🔍 Primeras 5 filas del resultado:")
     print(filtered_df.head().to_string(index=False))
     
@@ -84,17 +77,14 @@ def main():
     print("PANDAS - FILTRADO DE PELÍCULAS DE ACCIÓN")
     print("="*60)
     
-    # Cargar dataset
     df = load_dataset(show_info=False)
     
     if df is None:
         print("❌ Error al cargar el dataset")
         return None, None
     
-    # Filtrar películas
     filtered_df, exec_time = filter_action_movies(df, min_rating=4.0)
-    
-    # Guardar resultado (opcional)
+
     output_file = Path(__file__).parent / "data" / "action_movies_filtered.csv"
     print(f"\n💾 ¿Deseas guardar el resultado filtrado?")
     print(f"   Ubicación: {output_file}")
