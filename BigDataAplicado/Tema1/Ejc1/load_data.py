@@ -1,8 +1,3 @@
-"""
-Script para cargar el dataset MovieLens 20M
-Ejercicio 1 - Tema 1 - Big Data Aplicado
-"""
-
 import pandas as pd
 import os
 from pathlib import Path
