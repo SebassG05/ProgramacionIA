@@ -1,9 +1,3 @@
-"""
-BENCHMARK COMPLETO - PYSPARK
-MovieLens 20M Dataset
-Comparación de tiempos de ejecución
-"""
-
 import time
 import os
 from pyspark.sql import SparkSession
